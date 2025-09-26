@@ -1,0 +1,1 @@
+self.semesters[self.semesterCount] = current

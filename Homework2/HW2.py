@@ -70,10 +70,10 @@ class Catalog:
     def removeCourse(self, cid):
         if cid in self.courseOfferings:
             del self.courseOfferings[cid]
-            return "Course remomved successfully"
+            return "Course removed successfully"
         else:
             return "Course not found"
-        pass
+        
 
     def _loadCatalog(self, file):
         target_path = os.path.join(os.path.dirname(__file__), file)
@@ -84,7 +84,7 @@ class Catalog:
                 cid = line[0]
                 cname = line[1]
                 credits = int(line[2])
-            self.addCourse(cid, cname, credits)
+                self.addCourse(cid, cname, credits)
     
         
         
@@ -137,7 +137,7 @@ class Semester:
     def __str__(self):
         if not self.courses:
             return "No courses"
-        return ": ".join(self.courses.keys())
+        return "; ".join(self.courses.keys())
 
         
 
@@ -158,7 +158,7 @@ class Semester:
     def totalCredits(self):
         totalCred = 0
         for cid in self.courses:
-            credit = self.courses[cid].credit
+            credit = self.courses[cid].credits
             totalCred += credit
         return totalCred
 
@@ -226,7 +226,7 @@ class Person:
         
 
     def __str__(self):
-        return f"Person({self.name},***-**-{self.ssn[-4:]})"
+        return f"Person({self.name}, ***-**-{self.ssn[-4:]})"
 
     __repr__ = __str__
 
@@ -288,7 +288,7 @@ class Staff(Person):
     @property
     def id(self):
         splitName = self.name.split()
-        initials = splitName[0][0] + splitName[1][0]
+        initials = splitName[0][0].lower() + splitName[1][0].lower()
         fourDigSSN = self.ssn[-4:]
         return f"905{initials}{fourDigSSN}"
 
@@ -314,8 +314,9 @@ class Staff(Person):
         pass
 
     def createStudent(self, person):
-        # YOUR CODE STARTS HERE
-        pass
+        if isinstance(person, Person):
+            return Student(person.name, person.ssn, 'Freshman')
+        
 
 
 
@@ -374,42 +375,105 @@ class Student(Person):
     '''
     def __init__(self, name, ssn, year):
         random.seed(1)
-        # YOUR CODE STARTS HERE
+        super().__init__(name,ssn)
+        self.classCode = year
+        self.semesters = {}
+        self.semesterCount = 0
+        self.hold = False
+        self.active = True
+        self.account = StudentAccount(self)
+        self.balance = 0
+        self.loans = {}
 
 
     def __str__(self):
-        # YOUR CODE STARTS HERE
-        pass
+        return f"Student({self.name}, {self.id}, {self.classCode})"
 
     __repr__ = __str__
 
     def __createStudentAccount(self):
-        # YOUR CODE STARTS HERE
-        pass
+        splitName = self.name.split()
+        initials = splitName[0][0].lower() + splitName[1][0].lower()
+        fourDigSSN = self.ssn[-4:]
+        return f"{initials}{fourDigSSN}"
 
+    def _can_proceed(self): #ik not in the assignment requirements but this is easier
+        return self.active and not self.hold
 
     @property
     def id(self):
-        # YOUR CODE STARTS HERE
-        pass
+        return self.__createStudentAccount()
 
     def registerSemester(self):
-        # YOUR CODE STARTS HERE
-        pass
+        if not self._can_proceed():
+            return "Unsuccessful operation"
+        
+        self.semesterCount += 1
+        self.semesters[self.semesterCount] = Semester()
 
+        if self.semesterCount >= 7:
+            self.classCode = "Senior"
+        elif self.semesterCount >= 5:
+            self.classCode = "Junior"
+        elif self.semesterCount >= 3:
+            self.classCode = "Sophomore"
+        else:
+            self.classCode = "Freshman"
 
 
     def enrollCourse(self, cid, catalog):
-        # YOUR CODE STARTS HERE
-        pass
+        if not self._can_proceed():
+            return "Unsuccessful operation"
+    
+        if cid not in catalog.courseOfferings:
+            return "Course not found"
+    
+        current = self.semesters[self.semesterCount]
+    
+        if cid in current.courses:
+            return "Course already enrolled"
+    
+        course = catalog.courseOfferings[cid]
+        current.addCourse(course)  # None if success, "Course already added" if fail
+        return "Course added successfully"
+
+        
 
     def dropCourse(self, cid):
-        # YOUR CODE STARTS HERE
-        pass
+        if not self._can_proceed():
+            return "Unsuccessful operation"
+        currentSemester = self.semesters[self.semesterCount]
+    
+        # Access catalog from self.catalog or globally if available
+        catalog = self.catalog  # or global_catalog if accessible
+        
+        if cid not in catalog.courseOfferings:
+            return "Course not found"
+        course = catalog.courseOfferings[cid]
+        
+        result = currentSemester.dropCourse(course)
+        if result is None:
+            return "Course dropped successfully"
+        else:
+            return "Course not found"
 
     def getLoan(self, amount):
-        # YOUR CODE STARTS HERE
-        pass
+        if not self._can_proceed():
+            return "Unsuccessful operation"
+        elif not self.semesters:
+            return "Not full-time"
+
+        current_key = max(self.semesters.keys())
+        current_semester = self.semesters[current_key]
+
+        if not current_semester.isFullTime:
+            return "Not full-time"
+
+        loan = Loan(amount)
+        self.account.loans[loan.loan_id] = loan
+        self.account.makePayment(amount)
+
+
 
 
 
@@ -499,10 +563,10 @@ def run_tests():
     import doctest
 
     # Run tests in all docstrings
-    doctest.testmod(verbose=True)
+    #doctest.testmod(verbose=False)
     
     # Run tests per function - Uncomment the next line to run doctest by function. Replace Course with the name of the function you want to test
-    #doctest.run_docstring_examples(Course, globals(), name='HW2',verbose=True)   
+    doctest.run_docstring_examples(Student, globals(), name='HW2',verbose=False)   
 
 if __name__ == "__main__":
     run_tests()
