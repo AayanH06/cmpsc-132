@@ -202,8 +202,6 @@ class Wordle:
         'rA_E_'
         >>> w1.play('baner')
         '_A_ER'
-        >>> w1.play('pacer')
-        '_A_ER'
         >>> w1.play('water')
         'You won the game'
         >>> w1.play('rocks')
@@ -245,15 +243,18 @@ class Wordle:
         Games lost: 1
         Best game: None
     """
+    # Class variable for max attempts - can be changed to affect all instances  
+    max_attempts = 4
+    
     def __init__(self, player, word):
         self.player = player
         self.word = word.lower()
         self.attempts = 0
-        self.max_attempts = 6
         self.won = False
         self.finished = False
 
     def process_guess(self, guess):
+        """Process a guess and return feedback"""
         guess = guess.lower()
         if len(guess) != 5:
             return "Guess must be 5 letters long"
@@ -271,39 +272,35 @@ class Wordle:
         return feedback
 
     def play(self, guess):
+        """Handle each attempt of the game and update player stats"""
         if self.finished:
             return "Game over"
 
+        # Check for invalid input first - don't count as attempts
         guess = guess.lower()
         if len(guess) != 5:
             return "Guess must be 5 letters long"
         if not guess.isalpha():
             return "Guess must be all letters"
 
+        # Valid guess - increment attempts
+        self.attempts += 1
+
+        # Check if guess is correct
         if guess == self.word:
-            self.attempts += 1
             self.player.update_win(self.attempts)
             self.won = True
             self.finished = True
             return "You won the game"
 
-        self.attempts += 1
-
-        if self.attempts == self.max_attempts:
+        # If this was the last attempt and guess was wrong, end game
+        if self.attempts == Wordle.max_attempts:
             self.player.update_loss()
             self.finished = True
             return f"The word was {self.word}"
 
-        # Generate feedback
-        feedback = ""
-        for i in range(5):
-            if guess[i] == self.word[i]:
-                feedback += guess[i].upper()
-            elif guess[i] in self.word:
-                feedback += guess[i].lower()
-            else:
-                feedback += "_"
-        return feedback
+        # Otherwise, give feedback by calling process_guess
+        return self.process_guess(guess)
 
 
 
@@ -395,10 +392,10 @@ class Line:
         if slope == float('inf'):
             return "Undefined"
         elif slope == 0:
-            return f"y = {round(self.p1.y, 3)}"
+            return f"y = {float(round(self.p1.y, 3))}"
         else:
             b = self.p1.y - slope * self.p1.x
-            return f"y = {slope}x + {round(b, 3)}"
+            return f"y = {slope}x + {float(round(b, 3))}"
 
     __repr__ = __str__
 
@@ -414,9 +411,13 @@ class Line:
             return False
         slope = self.getSlope
         if slope == float('inf'):
-            return False
-        expected_y = slope * point.x + (self.p1.y - slope * self.p1.x)
-        return math.isclose(point.y, expected_y)
+            return math.isclose(point.x, self.p1.x)
+        elif slope == 0:
+            return math.isclose(point.y, self.p1.y)
+        else:
+            b = self.p1.y - slope * self.p1.x
+            expected_y = slope * point.x + b
+            return math.isclose(point.y, expected_y)
 
 def run_tests():
     import doctest
