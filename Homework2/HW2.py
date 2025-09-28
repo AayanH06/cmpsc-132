@@ -79,11 +79,11 @@ class Catalog:
         target_path = os.path.join(os.path.dirname(__file__), file)
         with open(target_path, "r") as f:
             course_info = f.readlines()
-            for term in course_info:
-                line = term.strip().split(",")
-                cid = line[0]
-                cname = line[1]
-                credits = int(line[2])
+            for line in course_info:
+                parts = line.strip().split(",")
+                cid = parts[0]
+                cname = parts[1]
+                credits = int(parts[2])
                 self.addCourse(cid, cname, credits)
     
         
@@ -434,7 +434,11 @@ class Student(Person):
             return "Course already enrolled"
     
         course = catalog.courseOfferings[cid]
-        current.addCourse(course)  # None if success, "Course already added" if fail
+        current.addCourse(course)
+
+        self.account.chargeAccount(course.credits * StudentAccount.CREDIT_PRICE)
+        #maybe?
+
         return "Course added successfully"
 
         
@@ -442,20 +446,20 @@ class Student(Person):
     def dropCourse(self, cid):
         if not self._can_proceed():
             return "Unsuccessful operation"
-        currentSemester = self.semesters[self.semesterCount]
     
-        # Access catalog from self.catalog or globally if available
-        catalog = self.catalog  # or global_catalog if accessible
+        currentSemester = self.semesters[self.semesterCount]
         
-        if cid not in catalog.courseOfferings:
+        if cid not in currentSemester.courses:
             return "Course not found"
-        course = catalog.courseOfferings[cid]
         
-        result = currentSemester.dropCourse(course)
-        if result is None:
-            return "Course dropped successfully"
-        else:
-            return "Course not found"
+        course = currentSemester.courses[cid]
+        
+        currentSemester.dropCourse(course)
+        
+        refund = (course.credits * StudentAccount.CREDIT_PRICE) / 2
+        self.account.makePayment(refund)
+
+        return "Course dropped successfully"
 
     def getLoan(self, amount):
         if not self._can_proceed():
@@ -534,27 +538,29 @@ class StudentAccount:
         >>> s1.account.balance
         7900.0
     '''
+    CREDIT_PRICE = 1000
     
     def __init__(self, student):
-        # YOUR CODE STARTS HERE
-        pass
+        self.student = student
+        self.balance = 0
+        self.loans = {}
 
 
     def __str__(self):
-        # YOUR CODE STARTS HERE
-        pass
+        return f"Name: {self.student.name}\nID: {self.student.id}\nBalance: ${self.balance}"
+        
 
     __repr__ = __str__
 
 
     def makePayment(self, amount):
-        # YOUR CODE STARTS HERE
-        pass
+        self.balance -= amount
+        return self.balance
 
 
     def chargeAccount(self, amount):
-        # YOUR CODE STARTS HERE
-        pass
+        self.balance += amount
+        return self.balance
 
 
 
@@ -563,10 +569,10 @@ def run_tests():
     import doctest
 
     # Run tests in all docstrings
-    #doctest.testmod(verbose=False)
+    doctest.testmod(verbose=False)
     
     # Run tests per function - Uncomment the next line to run doctest by function. Replace Course with the name of the function you want to test
-    doctest.run_docstring_examples(Student, globals(), name='HW2',verbose=False)   
+    #doctest.run_docstring_examples(Student, globals(), name='HW2',verbose=False)   
 
 if __name__ == "__main__":
     run_tests()
