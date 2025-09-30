@@ -1,0 +1,36 @@
+def find_top_students(grades: dict):
+    '''
+    
+    >>> grades = 
+        {
+            "Alice": {'Math': 90, 'Science': 85, 'English': 95},
+            "Bob": {'Math': 92, 'Science': 88, 'English': 95},
+            "Charlie": {'Math': 70, 'Science': 75, 'English': 80},
+    "       David": {'Math': 88, 'Science': 85, 'English': 91}
+            }
+        >>> find_top_students(grades)
+        {
+            'Math': 'Bob',
+            'Science': 'Bob',
+            'English': 'Alice'
+            }
+    '''
+    top_students = {
+                    "Math": "",
+                    "Science": "",
+                    "English": ""
+                    }
+
+    highest_scores
+
+
+def run_tests():
+    import doctest
+    # Run start tests in all docstrings
+    doctest.testmod(verbose=False)
+    
+    # Run start tests per function - Uncomment the next line to run doctest by function. Replace rectangle with the name of the function you want to test
+    #doctest.run_docstring_examples(hailstone, globals(), name='HW1',verbose=False)   
+
+if __name__ == "__main__":
+    run_tests()

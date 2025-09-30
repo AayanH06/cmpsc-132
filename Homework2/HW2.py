@@ -569,10 +569,10 @@ def run_tests():
     import doctest
 
     # Run tests in all docstrings
-    doctest.testmod(verbose=False)
+    #doctest.testmod(verbose=True)
     
     # Run tests per function - Uncomment the next line to run doctest by function. Replace Course with the name of the function you want to test
-    #doctest.run_docstring_examples(Student, globals(), name='HW2',verbose=False)   
+    doctest.run_docstring_examples(Student, globals(), name='HW2',verbose=False)   
 
 if __name__ == "__main__":
     run_tests()
