@@ -1,19 +1,15 @@
+#Question 1: Find the student who scored the highest in each subject
 def find_top_students(grades: dict):
     '''
     
-    >>> grades = 
-        {
-            "Alice": {'Math': 90, 'Science': 85, 'English': 95},
-            "Bob": {'Math': 92, 'Science': 88, 'English': 95},
-            "Charlie": {'Math': 70, 'Science': 75, 'English': 80},
-    "       David": {'Math': 88, 'Science': 85, 'English': 91}
-            }
-        >>> find_top_students(grades)
-        {
-            'Math': 'Bob',
-            'Science': 'Bob',
-            'English': 'Alice'
-            }
+    >>> grades = {
+    ...     "Alice": {'Math': 90, 'Science': 85, 'English': 95},
+    ...     "Bob": {'Math': 92, 'Science': 88, 'English': 95},
+    ...     "Charlie": {'Math': 70, 'Science': 75, 'English': 80},
+    ...     "David":   {'Math': 88, 'Science': 85, 'English': 91}
+    ...     }
+    >>> find_top_students(grades)
+    {'Math': 'Bob', 'Science': 'Bob', 'English': 'Alice'}
     '''
     top_students = {
                     "Math": "",
@@ -21,8 +17,144 @@ def find_top_students(grades: dict):
                     "English": ""
                     }
 
-    highest_scores
+    highest_scores = {
+                    "Math": 0,
+                    "Science": 0,
+                    "English": 0
+                    }
 
+    for student, courses in grades.items():
+        for course, score in courses.items():
+            if score > highest_scores[course]:
+                highest_scores[course] = score
+                top_students[course] = student
+    return top_students
+
+
+
+#Q2 Debugging - Find the Largest Number in a List
+def find_largest(numbers):
+    '''
+    >>> lst = [-5,-1,-10,-3]
+    >>> find_largest(lst)
+    -1
+    '''
+    largest = numbers[0] #was initialized to 0 before, therefore any lists w/o a 0 will mistakenly return their largest value as 0.
+    for num in numbers:
+        if num > largest:
+            largest = num
+    return largest
+
+
+
+#Q3: Multi Level Inheritance - Fill In The Blanks
+class Employee:
+    '''
+    >>> emp = Employee("Bob", 50000)
+    >>> emp
+    2500.0
+    >>> mgr = Manager("Alive", 70000, "Sales")
+    >>> mgr
+    7000.0
+    >>> exec1 = Executive("Charlie", 100000, "Finance", 500)
+    >>> exec1 
+    15000.0
+    >>> exec1.stock_options
+    500
+    '''
+
+
+    def __init__(self, name, salary):
+        self.name = name
+        self.salary = salary # (1) Fill in the missing line
+        
+    def __str__(self):
+        return f"{self.calculate_bonus():.1f}"
+
+    __repr__ = __str__
+
+    def calculate_bonus(self):
+        return self.salary * 0.05 # (2) Fill in the missing line (calculate 5% bonus)
+    
+class Manager(Employee): # (3) Fill in the missing line (inheritance)
+    def __init__(self, name, salary, department):
+        super().__init__(name, salary) # (4) Fill in the missing line (call parent constructor)
+        self.department = department
+
+    def __str__(self):
+        return f"{self.calculate_bonus():.1f}"
+    __repr__ = __str__
+
+    def calculate_bonus(self): # Override the method
+        return self.salary * 0.1 # (5) Fill in the missing line (10% bonus for managers)
+    
+class Executive(Manager): # (6) Fill in the missing line (inheritance)
+    def __init__(self, name, salary, department, stock_options):
+        super().__init__(name, salary, department) # (7) Fill in the missing line (call Manager constructor)
+        self.stock_options = stock_options
+
+    def __str__(self):
+        return f"{self.calculate_bonus():.1f}"
+    __repr__ = __str__
+
+    def calculate_bonus(self): # Override the method
+        return self.salary * 0.15 # (8) Fill in the missing line (calculate 15% bonus for executives)
+
+
+#Q4: Dictionary Comprehension - Fill In The Blanks
+
+def celsius_to_fahrenheit(temps):
+    '''
+    >>> city_temps = {"New York": 0, "Los Angeles": 20, "Chicago": -5}
+    >>> celsius_to_fahrenheit(city_temps)
+    {'New York': 32.0, 'Los Angeles': 68.0, 'Chicago': 23.0}
+    '''
+    # Fill in missing dictionary comprehension
+    converted_temps = {city: (temp * 9/5) + 32 for city, temp in temps.items()}  #(key, value) = (city, temp). in-line for-loop sorts thru city, temp in temps
+    return converted_temps  
+
+#Q5: Given an array of integers arr and a target sum S, determine if there is a subset of the array that adds up exactly to S.
+'''
+#>>> arr =[3, 34, 4, 12, 5, 2]
+#>>> target_sum = 9
+#>>> sum_array(arr, len(arr) sum_array)
+True
+'''
+def is_subset_sum(arr, n, S):
+    if S == 0:
+        return True
+    if n == 0:
+        return False
+    if arr[n-1] > S:
+        return is_subset_sum(arr, n-1, S)
+    return (is_subset_sum(arr, n-1, S) or is_subset_sum(arr, n-1, S - arr[n-1]))
+
+
+
+#Q6: read_file_lines(), asks user to enter name of text file.
+def read_file_lines():
+    file_name = ""
+
+    while file_name.lower() != "quit":
+        file_name = input("Enter file name or type 'quit': ")
+    
+        if file_name.lower() != "quit":
+            try:
+                with open(file_name,'r') as f:
+                    lines = f.readlines()
+
+                index = int(input("Please enter which line # to output: "))
+                print(f"Line {index}: {lines[index].strip()}")
+            except FileNotFoundError:
+                print("Error: File not found")
+            except IndexError:
+                print("Error: Index out of range")
+            except Exception:
+                print("Unexpected error occured")
+
+            print("Operation completed.")
+
+    print("Exiting program.")
 
 def run_tests():
     import doctest
@@ -33,4 +165,5 @@ def run_tests():
     #doctest.run_docstring_examples(hailstone, globals(), name='HW1',verbose=False)   
 
 if __name__ == "__main__":
+    #read_file_lines()
     run_tests()
