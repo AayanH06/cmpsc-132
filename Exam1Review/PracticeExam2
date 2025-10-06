@@ -1,0 +1,62 @@
+def multiply_values(d1:dict, d2:dict) -> dict:
+    d3 = d1.copy()
+
+    for key, value in d2:
+        if key in d3:
+            d3[key] *= value
+    return d3
+
+def group_by_author(books:dict)  -> dict:
+    dict_by_author = {}
+
+    for title, info in books.items():
+        author = info['author']
+    
+        if author not in dict_by_author:
+            dict_by_author[author] = []
+    
+        dict_by_author[author].append({"title: ": title, "publication_date: ": info["date"], "genre: ": info["genre"]})
+
+    return dict_by_author
+
+def paths(n: int, m:int) -> int:
+    if n == 1 and m == 1:
+        return 1
+    elif n == 1:
+        return paths(n, m - 1)
+    elif m == 1:
+        return paths(n - 1, m)
+    else:
+        return paths(n-1, m) + paths(n,m-1)
+    
+class Fraction:
+    can_have_floats = False
+
+    def __init__(self,num:int,den:int):
+        self.num = num
+        self.den = den
+
+    def reciprocal(self):
+        self.num, self.den = self.den, self.num
+
+    def __mul__(self,other):
+        if isinstance(other,int):
+            return Fraction(self.num * other, self.den)
+        elif isinstance(other, Fraction):
+            return Fraction(self.num * other.num, self.den * other.den)
+        elif isinstance(other, float):
+            if getattr(self, "can_have_floats", Fraction.can_have_floats):
+                return (self.num * other) / self.den
+            else:
+                return "Invalid operation"
+        else:
+            return "Invalid operation"
+    @property
+    def value(self):
+        return self.num / self.den
+    
+def main():
+    Fraction.can_have_floats = True
+    regular_fraction = Fraction(1,1)
+    regular_fraction.can_have_floats = False
+            

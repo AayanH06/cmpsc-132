@@ -37,9 +37,13 @@ def is_power_of(base, num):
     """
     if num == 0: 
         return False # 0 is not a power of any base
-    if num == base:
-        return True # as per doctests, suitable base case
-    
+    if num == 1:
+        return True # any num to the pow of 0 = 1
+    if base == 1:
+        return num == 1 # 1^n cant output any integer except 1
+    if num % base != 0:
+        return False #if not evenly divisible, cant be valid 
+    return(is_power_of(base, num // base))
 
 
 
