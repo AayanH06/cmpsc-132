@@ -63,8 +63,9 @@ def cut(a_list):
         >>> cut([5, 7, -1, 6, -3, 1, 8, 785, 5, -2, 1, 0, 42]) # Found(-1) Delete -1. Found(-3) Delete -3, 1 and 8. Found(-2) Delete -2 and 0
         [5, 7, 6, 785, 5, 0, 42]
 	"""
-    ## YOUR CODE STARTS HERE
-    pass
+    if not a_list:
+        return [None]
+    
 
 
 
