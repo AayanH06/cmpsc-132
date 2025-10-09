@@ -64,8 +64,16 @@ def cut(a_list):
         [5, 7, 6, 785, 5, 0, 42]
 	"""
     if not a_list:
-        return [None]
-    
+        return []
+
+    num = a_list[0]
+
+    if num >= 0:
+        return [num] + cut(a_list[1:])
+
+    k = abs(num)
+    return cut(a_list[k:])
+                
 
 
 
@@ -79,8 +87,14 @@ def right_max(num_list):
         >>> right_max([1, 25, 3, 48, 5, 6, 12, 14, 89, 3, 2])
         [89, 89, 89, 89, 89, 89, 89, 89, 89, 3, 2]
     """
-    ## YOUR CODE STARTS HERE
-    pass
+    if not num_list:
+        return []
+    tail = right_max(num_list[1:])
+    if not tail:
+        return [num_list[0]]
+    
+    head_max = num_list[0] if num_list[0] > tail[0] else tail[0]
+    return [head_max] + tail
 
 
 
@@ -95,8 +109,13 @@ def consecutive_digits(num):
         >>> consecutive_digits(122)
         True
     """
-    ## YOUR CODE STARTS HERE
-    pass
+    if num < 10:
+        return False
+    current_num = num % 10
+    next_num = (num // 10) % 10
+    if current_num != next_num:
+        return consecutive_digits(num // 10 )
+    return True
 
 
 
@@ -111,8 +130,17 @@ def only_evens(num):
         >>> only_evens(13847896213354889741236)
         84862488426
     """
-    ## YOUR CODE STARTS HERE
-    pass
+    if num == 0:
+        return 0
+
+    prefix = only_evens(num // 10)
+    last = num % 10
+
+    if last % 2 == 0:
+        return prefix * 10 + last
+    return prefix
+        
+    
 
 
 
@@ -123,7 +151,7 @@ def run_tests():
     #doctest.testmod(verbose=True)
     
     #- Run tests per function - Uncomment the next line to run doctest by function. Replace is_power_of with the name of the function you want to test
-    doctest.run_docstring_examples(is_power_of, globals(), name='LAB3',verbose=False)
+    doctest.run_docstring_examples(only_evens, globals(), name='LAB3',verbose=False)
 
 if __name__ == "__main__":
     run_tests()
