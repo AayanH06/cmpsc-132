@@ -133,18 +133,32 @@ class Malloc_Library:
 
 
     def calloc(self, size):
-        # --- YOUR CODE STARTS HERE
-        pass  # remove when starting implementation 
+        self.head = 0
+        if size == 0:
+            self.head = 0
+            return
+        
+        self.head = Node(None)
+        current = self.head
+
+        for i in range(size - 1):
+            if current is not None: #just bc i hated seeing the warnings
+                current.next = Node(0)
+                current = current.next
 
 
     def free(self):
-        # --- YOUR CODE STARTS HERE
-        pass  # remove when starting implementation 
+        current = self.head
+
+        while current is not None:
+            nextNode = current.next
+            current.next = None
+            current = nextNode
 
 
     def realloc(self, size):
         # --- YOUR CODE STARTS HERE
-        pass  # remove when starting implementation 
+        pass  # remove when starting implementation
 
 
 
