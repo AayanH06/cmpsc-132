@@ -75,23 +75,61 @@ class Malloc_Library:
     __str__ = __repr__
     
     def __len__(self):
-        # --- YOUR CODE STARTS HERE
-        pass  # remove when starting implementation 
+        current = self.head
+        count = 0
+        while current is not None:
+            current = current.next
+            count += 1
+        return count
 
     
     def __setitem__(self, pos, value):
-        # --- YOUR CODE STARTS HERE
-        pass  # remove when starting implementation 
+        if pos < 0 or pos >= len(self):
+            raise IndexError("Index out of range")
+        
+        current = self.head
+        currentPos = 0
+
+        while currentPos < pos:
+            if current is None:
+                raise IndexError("Index out of range")
+            current = current.next
+            currentPos += 1
+        if current is None:
+            raise IndexError("Index out of range")
+        current.value = value
 
 
     def __getitem__(self, pos):
-        # --- YOUR CODE STARTS HERE
-        pass  # remove when starting implementation 
+        if pos < 0 or pos >= len(self):
+            raise IndexError("Index out of range")
+        
+        current = self.head
+        currentPos = 0
+
+        while currentPos < pos:
+            if current is None:
+                raise IndexError("Index out of range")
+            current = current.next
+            currentPos += 1
+        if current is None:
+            raise IndexError("Index out of range")
+        return(current.value) 
     
 
     def malloc(self, size):
-        # --- YOUR CODE STARTS HERE
-        pass  # remove when starting implementation 
+        self.head = None
+        if size == 0:
+            self.head = None
+            return
+        
+        self.head = Node(None)
+        current = self.head
+
+        for i in range(size - 1):
+            if current is not None: #just bc i hated seeing the warnings
+                current.next = Node(None)
+                current = current.next
 
 
     def calloc(self, size):
