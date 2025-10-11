@@ -85,35 +85,35 @@ class Malloc_Library:
     
     def __setitem__(self, pos, value):
         if pos < 0 or pos >= len(self):
-            raise IndexError("Index out of range")
+            raise IndexError
         
         current = self.head
         currentPos = 0
 
         while currentPos < pos:
             if current is None:
-                raise IndexError("Index out of range")
+                raise IndexError
             current = current.next
             currentPos += 1
         if current is None:
-            raise IndexError("Index out of range")
+            raise IndexError
         current.value = value
 
 
     def __getitem__(self, pos):
         if pos < 0 or pos >= len(self):
-            raise IndexError("Index out of range")
+            raise IndexError
         
         current = self.head
         currentPos = 0
 
         while currentPos < pos:
             if current is None:
-                raise IndexError("Index out of range")
+                raise IndexError
             current = current.next
             currentPos += 1
         if current is None:
-            raise IndexError("Index out of range")
+            raise IndexError
         return(current.value) 
     
 
@@ -133,16 +133,16 @@ class Malloc_Library:
 
 
     def calloc(self, size):
-        self.head = 0
+        self.head = None
+        
         if size == 0:
-            self.head = 0
             return
         
-        self.head = Node(None)
+        self.head = Node(0)
         current = self.head
 
         for i in range(size - 1):
-            if current is not None: #just bc i hated seeing the warnings
+            if current is not None:
                 current.next = Node(0)
                 current = current.next
 
@@ -157,20 +157,73 @@ class Malloc_Library:
 
 
     def realloc(self, size):
-        # --- YOUR CODE STARTS HERE
-        pass  # remove when starting implementation
+        if size == 0:
+            self.free()
+            return
+        
+        if self.head is None:
+            self.malloc(size)
+            return
+        
+        current_length = len(self)
+        
+        if size > current_length:
+            # Add nodes to the end
+            current = self.head
+            while current.next is not None:
+                current = current.next
+            
+            for i in range(size - current_length):
+                current.next = Node(None)
+                current = current.next
+        
+        elif size < current_length:
+            # Remove nodes from the end
+            current = self.head
+            for i in range(size - 1):
+                current = current.next
+            
+            current.next = None
 
 
 
     def memcpy(self, ptr1_start_idx, pointer_2, ptr2_start_idx, size):
-        # --- YOUR CODE STARTS HERE
-        pass  # remove when starting implementation 
-    
+        if self.head is None or pointer_2.head is None:
+            return
+        
+        if ptr1_start_idx < 0 or ptr1_start_idx >= len(self):
+            return
+        if ptr2_start_idx < 0 or ptr2_start_idx >= len(pointer_2):
+            return
+        
+        current_ptr1 = self.head
+        current_ptr1Pos = 0
+        
+        while current_ptr1Pos < ptr1_start_idx:
+            current_ptr1 = current_ptr1.next
+            current_ptr1Pos += 1
+        
+        current_ptr2 = pointer_2.head
+        current_ptr2Pos = 0
+        
+        while current_ptr2Pos < ptr2_start_idx:
+            current_ptr2 = current_ptr2.next
+            current_ptr2Pos += 1
+        
+        count = 0
+        while count < size and current_ptr1 is not None and current_ptr2 is not None:
+            current_ptr2.value = current_ptr1.value
+            current_ptr1 = current_ptr1.next
+            current_ptr2 = current_ptr2.next
+            count += 1
+        
+
+
 
 
 def run_tests():
     import doctest
-    doctest.testmod(verbose=True)
+    doctest.testmod(verbose=False)
      
 
 if __name__ == "__main__":
