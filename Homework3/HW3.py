@@ -11,7 +11,6 @@ class Node:
 
     __repr__ = __str__
                           
-
 #=============================================== Part I ==============================================
 
 class Stack:
@@ -41,6 +40,7 @@ class Stack:
     '''
     def __init__(self):
         self.top = None
+        self.size = 0
     
     def __str__(self):
         temp=self.top
@@ -55,25 +55,30 @@ class Stack:
 
 
     def isEmpty(self):
-        # YOUR CODE STARTS HERE
-        pass
+        return self.size == 0
 
     def __len__(self): 
-        # YOUR CODE STARTS HERE
-        pass
+        return self.size
 
     def push(self,value):
-        # YOUR CODE STARTS HERE
-        pass
-
+        node = Node(value)
+        node.next = self.top
+        self.top = node
+        self.size += 1
      
     def pop(self):
-        # YOUR CODE STARTS HERE
-        pass
+        if self.top is None:
+            return None
+        
+        top_value = self.top.value
+        self.top = self.top.next
+        self.size -= 1
+        return top_value
 
     def peek(self):
-        # YOUR CODE STARTS HERE
-        pass
+        if self.top is None:
+            return None
+        return self.top.value
 
 
 #=============================================== Part II ==============================================
