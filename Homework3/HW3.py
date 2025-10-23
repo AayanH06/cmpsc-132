@@ -40,43 +40,43 @@ class Stack:
     '''
     def __init__(self):
         self.top = None
-        self.size = 0
     
     def __str__(self):
-        temp=self.top
-        out=[]
-        while temp:
-            out.append(str(temp.value))
-            temp=temp.next
-        out='\n'.join(out)
-        return ('Top:{}\nStack:\n{}'.format(self.top,out))
+        current=self.top
+        items=[]
+        while current:
+            items.append(str(current.value))
+            current=current.next
+        items='\n'.join(items)
+        return ('Top:{}\nStack:\n{}'.format(self.top,items))
 
     __repr__=__str__
 
-
     def isEmpty(self):
-        return self.size == 0
+        return self.top is None
 
     def __len__(self): 
-        return self.size
+        count = 0
+        node = self.top
+        while node:
+            node = node.next
+            count += 1
+        return count
 
     def push(self,value):
-        node = Node(value)
-        node.next = self.top
-        self.top = node
-        self.size += 1
+        new_node = Node(value)
+        new_node.next = self.top
+        self.top = new_node
      
     def pop(self):
-        if self.top is None:
+        if self.isEmpty():
             return None
-        
-        top_value = self.top.value
+        data = self.top.value
         self.top = self.top.next
-        self.size -= 1
-        return top_value
+        return data
 
     def peek(self):
-        if self.top is None:
+        if self.isEmpty():
             return None
         return self.top.value
 
@@ -86,7 +86,6 @@ class Stack:
 class Calculator:
     def __init__(self):
         self.__expr = None
-
 
     @property
     def getExpr(self):
@@ -109,11 +108,11 @@ class Calculator:
             >>> x._isNumber('2.56p')
             False
         '''
-        # YOUR CODE STARTS HERE
-        pass
-
-
-
+        try:
+            float(txt.strip())
+            return True
+        except:
+            return False
 
     def _getPostfix(self, txt):
         '''
@@ -153,11 +152,131 @@ class Calculator:
             >>> x._getPostfix(' 2 * ( 5 + 3 ) ^  2 + ) 1 + 4 (')
             >>> x._getPostfix('2 *      5% + 3       ^ + -2 +1 +4')
         '''
+        postfixStack = Stack()
+        result = []
+        
+        operator_precedence = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3}
+        
+        token_list = []
+        idx = 0
+        txt = txt.strip()
+        
+        while idx < len(txt):
+            if txt[idx].isspace():
+                idx += 1
+                pass
+            
+            if txt[idx] in '()+-*/^':
+                if txt[idx] == '-':
+                    is_neg_num = False
+                    if idx == 0:
+                        is_neg_num = True
+                    elif token_list and token_list[-1] in '(+-*/^':
+                        is_neg_num = True
+                    
+                    if is_neg_num:
+                        pos = idx + 1
+                        while pos < len(txt) and txt[pos].isspace():
+                            pos += 1
+                        num_start = pos
+                        while pos < len(txt) and (txt[pos].isdigit() or txt[pos] == '.'):
+                            pos += 1
+                        if pos > num_start:
+                            token_list.append('-' + txt[num_start:pos])
+                            idx = pos
+                            pass
+                
+                token_list.append(txt[idx])
+                idx += 1
+            elif txt[idx].isdigit() or txt[idx] == '.':
+                pos = idx
+                while pos < len(txt) and (txt[pos].isdigit() or txt[pos] == '.'):
+                    pos += 1
+                token_list.append(txt[idx:pos])
+                idx = pos
+            else:
+                return None
+        
+        if not self._validateExpression(token_list):
+            return None
+        
+        for elem in token_list:
+            if self._isNumber(elem):
+                result.append(str(float(elem)))
+            elif elem == '(':
+                postfixStack.push(elem)
+            elif elem == ')':
+                while not postfixStack.isEmpty() and postfixStack.peek() != '(':
+                    result.append(postfixStack.pop())
+                if postfixStack.isEmpty():
+                    return None
+                postfixStack.pop()
+            elif elem in operator_precedence:
+                if elem == '^':
+                    while not postfixStack.isEmpty() and postfixStack.peek() in operator_precedence and operator_precedence[postfixStack.peek()] > operator_precedence[elem]:
+                        result.append(postfixStack.pop())
+                else:
+                    while not postfixStack.isEmpty() and postfixStack.peek() in operator_precedence and operator_precedence[postfixStack.peek()] >= operator_precedence[elem]:
+                        result.append(postfixStack.pop())
+                postfixStack.push(elem)
+            else:
+                return None
+        
+        while not postfixStack.isEmpty():
+            operator = postfixStack.pop()
+            if operator == '(' or operator == ')':
+                return None
+            result.append(operator)
+        
+        return ' '.join(result) if result else None
 
-        # YOUR CODE STARTS HERE
-        postfixStack = Stack()  # method must use postfixStack to compute the postfix expression
-        pass
-
+    def _validateExpression(self, token_list):
+        if not token_list:
+            return False
+        
+        paren_balance = 0
+        last_token = None
+        
+        for position, elem in enumerate(token_list):
+            if elem == '(':
+                paren_balance += 1
+                if last_token and self._isNumber(last_token):
+                    return False
+                if last_token == ')':
+                    return False
+            elif elem == ')':
+                paren_balance -= 1
+                if paren_balance < 0:
+                    return False
+                if position + 1 < len(token_list) and self._isNumber(token_list[position + 1]):
+                    return False
+            elif elem in '+-*/^':
+                if last_token in '*/^':
+                    return False
+                if last_token == '+':
+                    return False
+                if last_token == '-' and elem in '*/^+':
+                    return False
+                if last_token is None or last_token == '(':
+                    if elem in '*/^':
+                        return False
+                if position == len(token_list) - 1:
+                    return False
+            elif self._isNumber(elem):
+                if last_token and self._isNumber(last_token):
+                    return False
+            else:
+                return False
+            
+            last_token = elem
+        
+        if paren_balance != 0:
+            return False
+        
+        if token_list[-1] in '+-*/^(':
+            return False
+        
+        return True
 
     @property
     def calculate(self):
@@ -199,7 +318,7 @@ class Calculator:
             
 
             # In invalid expressions, you might print an error message, but code must return None, adjust doctest accordingly
-            >>> x.setExpr(" 4 ++ 3+ 2") 
+            >>> x.setExpr(" 4 ++ 3+ 2")
             >>> x.calculate
             >>> x.setExpr("4  3 +2")
             >>> x.calculate
@@ -209,22 +328,55 @@ class Calculator:
             >>> x.calculate
             >>> x.setExpr(' ) 2 ( *10 - 3 * ( 2 - 3 * 2 ) ')
             >>> x.calculate
-            >>> x.setExpr('(    3.5 ) ( 15 )') 
+            >>> x.setExpr('(    3.5 ) ( 15 )')
             >>> x.calculate
-            >>> x.setExpr('3 ( 5) - 15 + 85 ( 12)') 
+            >>> x.setExpr('3 ( 5) - 15 + 85 ( 12)')
             >>> x.calculate
-            >>> x.setExpr("( -2/6) + ( 5 ( ( 9.4 )))") 
+            >>> x.setExpr("( -2/6) + ( 5 ( ( 9.4 )))")
             >>> x.calculate
         '''
-
-        if not isinstance(self.__expr,str) or len(self.__expr)<=0:
+        if not isinstance(self.__expr, str) or len(self.__expr) <= 0:
             print("Argument error in calculate")
             return None
 
-        calcStack = Stack()   # method must use calcStack to compute the  expression
+        calcStack = Stack()
+        
+        postfix_expr = self._getPostfix(self.__expr)
+        if postfix_expr is None:
+            return None
+        
+        token_array = postfix_expr.split()
+        
+        for item in token_array:
+            if self._isNumber(item):
+                calcStack.push(float(item))
+            elif item in '+-*/^':
+                if len(calcStack) < 2:
+                    return None
+                
+                operand_right = calcStack.pop()
+                operand_left = calcStack.pop()
+                
+                if item == '+':
+                    answer = operand_left + operand_right
+                elif item == '-':
+                    answer = operand_left - operand_right
+                elif item == '*':
+                    answer = operand_left * operand_right
+                elif item == '/':
+                    if operand_right == 0:
+                        return None
+                    answer = operand_left / operand_right
+                elif item == '^':
+                    answer = operand_left ** operand_right
+                
+                calcStack.push(answer)
+        
+        if len(calcStack) != 1:
+            return None
+        
+        return calcStack.pop()
 
-        # YOUR CODE STARTS HERE
-        pass
 
 #=============================================== Part III ==============================================
 
@@ -283,9 +435,11 @@ class AdvancedCalculator:
             >>> C._isVariable('vol%2')
             False
         '''
-        # YOUR CODE STARTS HERE
-        pass
-       
+        if not word or len(word) == 0:
+            return False
+        if not word[0].isalpha():
+            return False
+        return word.isalnum()
 
     def _replaceVariables(self, expr):
         '''
@@ -299,25 +453,77 @@ class AdvancedCalculator:
             >>> C._replaceVariables('x2 - x1')
             '28.0 - 23.0'
         '''
-        # YOUR CODE STARTS HERE
-        pass
+        parts = expr.split()
+        updated = []
+        
+        for part in parts:
+            if self._isVariable(part):
+                if part in self.states:
+                    updated.append(str(self.states[part]))
+                else:
+                    return None
+            else:
+                updated.append(part)
+        
+        return ' '.join(updated)
 
-    
     def calculateExpressions(self):
-        self.states = {} 
-        calcObj = Calculator()     # method must use calcObj to compute each expression
-        # YOUR CODE STARTS HERE
-        pass
+        self.states = {}
+        calc = Calculator()
+        output_dict = {}
+        
+        statement_list = self.expressions.split(';')
+        
+        for statement in statement_list:
+            statement = statement.strip()
+            if not statement:
+                pass
+            
+            if statement.startswith('return'):
+                return_expr = statement.split('return', 1)[1].strip()
+                substituted = self._replaceVariables(return_expr)
+                
+                if substituted is None:
+                    return None
+                
+                calc.setExpr(substituted)
+                computed = calc.calculate
+                
+                if computed is None:
+                    return None
+                
+                output_dict['_return_'] = computed
+            else:
+                assignment_parts = statement.split('=', 1)
+                if len(assignment_parts) != 2:
+                    return None
+                
+                variable_name = assignment_parts[0].strip()
+                expression_part = assignment_parts[1].strip()
+                
+                if not self._isVariable(variable_name):
+                    return None
+                
+                substituted = self._replaceVariables(expression_part)
+                
+                if substituted is None:
+                    return None
+                
+                calc.setExpr(substituted)
+                computed = calc.calculate
+                
+                if computed is None:
+                    return None
+                
+                self.states[variable_name] = computed
+                output_dict[statement] = dict(self.states)
+        
+        return output_dict
 
 
 def run_tests():
     import doctest
-
-    # Run tests in all docstrings
-    #doctest.testmod(verbose=True)
-    
-    # Run tests per function - Uncomment the next line to run doctest by function. Replace Stack with the name of the function you want to test
-    doctest.run_docstring_examples(Stack, globals(), name='HW3',verbose=True)   
+    doctest.testmod(verbose=False)
 
 if __name__ == "__main__":
     run_tests()
