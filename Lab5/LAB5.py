@@ -76,38 +76,57 @@ class BinarySearchTree:
     
 
     def isEmpty(self):
-        # YOUR CODE STARTS HERE
-        pass
+        return self.root is None
 
 
     @property
-    def getMin(self): 
-        # YOUR CODE STARTS HERE
-        pass
+    def getMin(self): #input values that are less than the node are put on the left (as per _insert)
+        if self.root is None:
+            return None
+        current = self.root
+        while current.left is not None:
+            current = current.left
+        return current.value
+
+
 
 
     @property
-    def getMax(self): 
-        # YOUR CODE STARTS HERE
-        pass
-
+    def getMax(self): #input values that are greater than the node are put on the right (as per _insert)
+        if self.root is None:
+            return None
+        current = self.root
+        while current.right is not None:
+            current = current.right
+        return current.value
 
     def __contains__(self,value):
-        # YOUR CODE STARTS HERE
-        pass
+        if self.root is None:
+            return False
+        current = self.root
 
-
+        while current:
+            if current.value == value:
+                return True
+            elif current.value < value: #__insert sends lesser values to left
+                current = current.right
+            else: #__insert sends greater values to right
+                current = current.left
+        return False
+    
     def getHeight(self, node):
-        # YOUR CODE STARTS HERE
-        pass
-
+        if node is None:
+            return 0
+        left_height = self.getHeight(node.left)
+        right_height = self.getHeight(node.right)
+        return 1 + max(left_height, right_height)
+    
     @property
     def isBalanced(self):  # Do not modify this method
         return self.isBalanced_helper(self.root)
     
     
     def isBalanced_helper(self, node):
-        # YOUR CODE STARTS HERE
         pass
 
 
