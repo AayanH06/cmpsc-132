@@ -116,9 +116,11 @@ class BinarySearchTree:
     
     def getHeight(self, node):
         if node is None:
-            return 0
+            return -1
+        
         left_height = self.getHeight(node.left)
         right_height = self.getHeight(node.right)
+
         return 1 + max(left_height, right_height)
     
     @property
@@ -127,13 +129,21 @@ class BinarySearchTree:
     
     
     def isBalanced_helper(self, node):
-        pass
+        if node is None:
+            return True #b/c no children, root is 1-1 = 0 which fulfills abs(n) <= 1
+        #sets up for recursion, splits binary tree in to left and right nodes
+        left_height = self.getHeight(node.left)
+        right_height = self.getHeight(node.right)
 
+        if abs(left_height - right_height) > 1: #n = [-inf, +inf] -> abs(n) = [0, +inf], simpler to write an if-statement between 0 and 1 rather than -1 and 1
+            return False
+        
+        return(self.isBalanced_helper(node.left) and self.isBalanced_helper(node.right))
 
 
 def run_tests():
     import doctest
-    doctest.testmod(verbose=True)
+    doctest.testmod(verbose=False)
     
 if __name__ == "__main__":
     run_tests()
