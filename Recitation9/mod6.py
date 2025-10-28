@@ -44,7 +44,17 @@ class Graph:
         self.adjacency_list = graph_repr
 
     def bfs(self, start):
-        pass
+        q = Queue()
+        visited = []
+
+        if q.isEmpty():
+            q.enqueue(start)
+            visited.append(start)
+        while not q.isEmpty():
+            node = q.dequeue
+            for each x in node:
+                if x not in visited:
+                    x.enqueue(start)
 
 
 if __name__ == "__main__":
