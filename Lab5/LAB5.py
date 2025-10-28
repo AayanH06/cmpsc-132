@@ -121,7 +121,7 @@ class BinarySearchTree:
         left_height = self.getHeight(node.left)
         right_height = self.getHeight(node.right)
 
-        return 1 + max(left_height, right_height)
+        return 1 + max( left_height, right_height)
     
     @property
     def isBalanced(self):  # Do not modify this method
