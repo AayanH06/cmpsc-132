@@ -46,15 +46,18 @@ class Graph:
     def bfs(self, start):
         q = Queue()
         visited = []
-
-        if q.isEmpty():
-            q.enqueue(start)
-            visited.append(start)
+        
+        q.enqueue(start)
+        visited.append(start)
+        
         while not q.isEmpty():
-            node = q.dequeue
-            for each x in node:
+            node = q.dequeue()
+            for x in sorted(self.adjacency_list[node]):
                 if x not in visited:
-                    x.enqueue(start)
+                    q.enqueue(x)
+                    visited.append(x)
+        
+        return visited
 
 
 if __name__ == "__main__":
